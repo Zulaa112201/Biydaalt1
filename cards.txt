@@ -1,5 +1,4 @@
-Red eatable fruit that grows on tree|Apple
-Thing that preserving knowledge and allows to get information without AI|Book
-Automation that can be driven|Car
-2+2|4
-write hello|hello
+9*10|90
+Which one is a fruit?|Banana
+What is the color of the sky on a clear day?|Blue
+How ____ sugar do you want in your coffee|much
