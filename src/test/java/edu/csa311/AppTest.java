@@ -3,11 +3,9 @@ package edu.csa311;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import edu.csa311.organizer.RecentMistakesFirstSorter;
 import edu.csa311.organizer.WorstFirstSorter;
 
@@ -33,20 +31,20 @@ public class AppTest {
         
         new RecentMistakesFirstSorter().organize(deck);
         
-        assertEquals(historyCard, deck.get(0), "Хамгийн сүүлд алдсан карт жагсаалтын эхэнд байх ёстой.");
+        // Хамгийн сүүлд алдсан карт (historyCard) эхэнд байх ёстой
+        assertEquals(historyCard, deck.get(0));
     }
 
     @Test
     public void testWorstFirst() {
-        mathCard.recordAttempt(true); // 100% амжилт
-        
-        historyCard.recordAttempt(false); // 0% амжилт
-        historyCard.recordAttempt(false);
+        mathCard.recordAttempt(true); // 100%
+        historyCard.recordAttempt(false); // 0%
         
         deck.addAll(Arrays.asList(mathCard, historyCard));
         
         new WorstFirstSorter().organize(deck);
         
+        // Хамгийн муу үзүүлэлттэй нь эхэнд байх ёстой
         assertEquals("Монгол улс хэзээ тусгаар тогтносон бэ?", deck.get(0).getQuestion());
         assertTrue(deck.get(0).getSuccessRate() < deck.get(1).getSuccessRate());
     }
@@ -58,17 +56,14 @@ public class AppTest {
         
         parser.parse(mockArgs);
         
-        assertAll("CLI Parser-ийн утгуудыг шалгах",
-            () -> assertEquals("data.csv", parser.filePath),
-            () -> assertEquals("recent-mistakes", parser.order),
-            () -> assertEquals(5, parser.repetitions)
-        );
+        assertEquals("data.csv", parser.filePath);
+        assertEquals("recent-mistakes", parser.order);
+        assertEquals(5, parser.repetitions);
     }
 
     @Test
     public void testCardLogic() {
-        Card card = new Card("Java гэж юу вэ?", "Програмчлалын хэл");
-        
+        Card card = new Card("Java", "Language");
         card.recordAttempt(false);
         card.recordAttempt(true);
         card.recordAttempt(false);
