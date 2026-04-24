@@ -38,6 +38,6 @@ public class Card {
         if (totalAttempts == 0) {
             return 0.0;
         }
-        return (double) correctCount / totalAttempts * 100;
+        return (double) correctCount / totalAttempts;
     }
 }
