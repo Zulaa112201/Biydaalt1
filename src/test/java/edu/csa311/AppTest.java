@@ -1,63 +1,88 @@
 package edu.csa311;
 
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.Test;
 
 import edu.csa311.organizer.RecentMistakesFirstSorter;
 import edu.csa311.organizer.WorstFirstSorter;
 
 public class AppTest {
 
+    private Card mathCard;
+    private Card historyCard;
+    private List<Card> deck;
+
+    @BeforeEach
+    public void setUp() {
+        // Тест болгонд ашиглагдах объектуудыг бэлдэх
+        mathCard = new Card("2+2=?", "4");
+        historyCard = new Card("Монгол улс хэзээ тусгаар тогтносон бэ?", "1911");
+        deck = new ArrayList<>();
+    }
+
     @Test
     public void testRecentMistakesFirst() {
-        Card c1 = new Card("Q1", "A1"); // Зөв
-        Card c2 = new Card("Q2", "A2"); // Буруу
-        c2.recordAttempt(false);
+        // Түүхийн асуултанд алдаж, математикийн асуултанд зөв хариулсан гэж үзье
+        historyCard.recordAttempt(false); 
+        mathCard.recordAttempt(true);
+
+        deck.addAll(Arrays.asList(mathCard, historyCard));
         
-        List<Card> cards = new ArrayList<>(Arrays.asList(c1, c2));
-        new RecentMistakesFirstSorter().organize(cards);
+        // Сортлох (Сүүлд алдсан нь эхэнд ирэх ёстой)
+        new RecentMistakesFirstSorter().organize(deck);
         
-        assertEquals("Q2", cards.get(0).getQuestion(), "Буруу хариулсан карт хамгийн эхэнд байх ёстой.");
+        assertEquals(historyCard, deck.get(0), "Хамгийн сүүлд алдсан карт жагсаалтын эхэнд байх ёстой.");
     }
 
     @Test
     public void testWorstFirst() {
-        Card best = new Card("Best", "A");
-        best.recordAttempt(true); // 100% 
+        // Math card: 1 оролдлого, 1 зөв (100%)
+        mathCard.recordAttempt(true);
         
-        Card worst = new Card("Worst", "B");
-        worst.recordAttempt(false); // 0% 
+        // History card: 2 оролдлого, 0 зөв (0%)
+        historyCard.recordAttempt(false);
+        historyCard.recordAttempt(false);
         
-        List<Card> cards = new ArrayList<>(Arrays.asList(best, worst));
-        new WorstFirstSorter().organize(cards);
+        deck.addAll(Arrays.asList(mathCard, historyCard));
         
-        assertEquals("Worst", cards.get(0).getQuestion(), "Амжилтын хувь хамгийн бага карт эхэнд байх ёстой.");
+        // Сортлох (Хамгийн муу үзүүлэлттэй нь эхэнд)
+        new WorstFirstSorter().organize(deck);
+        
+        assertEquals("Монгол улс хэзээ тусгаар тогтносон бэ?", deck.get(0).getQuestion());
+        assertTrue(deck.get(0).getSuccessRate() < deck.get(1).getSuccessRate());
     }
 
     @Test
     public void testCLIParser() {
         CLIParser parser = new CLIParser();
-        String[] args = {"cards.txt", "--order", "worst-first", "--repetitions", "3"};
-        parser.parse(args);
+        // Өөр аргументуудаар турших
+        String[] mockArgs = {"data.csv", "--order", "recent-mistakes", "--repetitions", "5"};
         
-        assertEquals("cards.txt", parser.filePath);
-        assertEquals("worst-first", parser.order);
-        assertEquals(3, parser.repetitions);
+        parser.parse(mockArgs);
+        
+        assertAll("CLI Parser-ийн утгуудыг шалгах",
+            () -> assertEquals("data.csv", parser.filePath),
+            () -> assertEquals("recent-mistakes", parser.order),
+            () -> assertEquals(5, parser.repetitions)
+        );
     }
 
     @Test
     public void testCardLogic() {
-        Card card = new Card("Q", "A");
+        Card card = new Card("Java гэж юу вэ?", "Програмчлалын хэл");
+        
+        // Гурван удаа оролдож үзэх (2 буруу, 1 зөв)
+        card.recordAttempt(false);
         card.recordAttempt(true);
         card.recordAttempt(false);
         
-        assertEquals(2, card.getTotalAttempts());
-        assertEquals(1, card.getCorrectCount());
-        assertTrue(card.isLastAttemptFailed(), "Сүүлийн оролдлого буруу байх ёстой.");
+        assertEquals(3, card.getTotalAttempts(), "Нийт оролдлого 3 байх ёстой.");
+        assertEquals(1, card.getCorrectCount(), "Зөв хариулт 1 байх ёстой.");
+        assertTrue(card.isLastAttemptFailed(), "Хамгийн сүүлийн оролдлого 'Буруу' байх ёстой.");
     }
 }
