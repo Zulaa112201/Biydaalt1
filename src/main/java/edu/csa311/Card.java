@@ -1,7 +1,5 @@
 package edu.csa311;
 
-
-
 public class Card {
     private String question;
     private String answer;
@@ -34,5 +32,12 @@ public class Card {
         } else {
             lastAttemptFailed = true;
         }
+    }
+
+    public double getSuccessRate() {
+        if (totalAttempts == 0) {
+            return 0.0;
+        }
+        return (double) correctCount / totalAttempts * 100;
     }
 }
